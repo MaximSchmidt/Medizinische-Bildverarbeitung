@@ -41,13 +41,11 @@ Die Bildverarbeitung bleibt beiden Varianten identisch. Der Unterschied liegt  i
 |        2 | Multiprocessing | Mehrere Prozesse verarbeiten mehrere Bilder parallel |
 
 
-## Benchmark
-
-
+# Benchmark
 
 ## Ergebnisse - Platzhalter
 
-### Beispiel: Bildverarbeitung
+### Bildverarbeitung
 
 <table width="100%">
   <tr>
@@ -68,64 +66,112 @@ Die Bildverarbeitung bleibt beiden Varianten identisch. Der Unterschied liegt  i
 
 ---
 
-### Beispiel: Histogramm
+### Histogramm
 
 <table width="100%">
   <tr>
-    <td width="50%"><img src="images_output/histogram_original.png" width="100%"></td>
-    <td width="50%"><img src="images_output/histogram_processed.png" width="100%"></td>
+    <td width="100%"><img src="images_output/histogram.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Histogramm Originalbild</td>
-    <td align="center">Histogramm nach Verarbeitung</td>
+    <td align="center">Histogramm der Grauwerte</td>
   </tr>
 </table>
 
 ---
 
-### Benchmark-Diagramme
+
+### Diagramme
 
 <table width="100%">
   <tr>
-    <td width="50%"><img src="plots/runtime_by_laptop.png" width="100%"></td>
-    <td width="50%"><img src="plots/speedup_by_laptop.png" width="100%"></td>
+    <td width="100%"><img src="plots/runtime_by_laptop.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Laufzeitvergleich auf drei Laptops</td>
-    <td align="center">Speedup-Vergleich auf drei Laptops</td>
+    <td align="center">Laufzeitvergleich bei 200 Bildern</td>
+  </tr>
+
+  <tr>
+    <td width="100%"><img src="plots/speedup_by_laptop.png" width="100%"></td>
   </tr>
   <tr>
-    <td width="50%"><img src="plots/efficiency_by_processes.png" width="100%"></td>
-    <td width="50%"><img src="plots/runtime_by_image_count.png" width="100%"></td>
+    <td align="center">Speedup-Vergleich bei 200 Bildern</td>
+  </tr>
+
+  <tr>
+    <td width="100%"><img src="plots/efficiency_by_processes.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Efficiency bei unterschiedlicher Prozessanzahl</td>
-    <td align="center">Laufzeit bei steigender Bildanzahl</td>
+    <td align="center">Efficiency bei unterschiedlicher Prozessanzahl bei Laptop 1</td>
+  </tr>
+
+  <tr>
+    <td width="100%"><img src="plots/runtime_by_image_count.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center">Laufzeit bei steigender Bildanzahl bei Laptop 1</td>
   </tr>
 </table>
 
+
+
+
 ---
 
-## Benchmark
+## Messung
 
-| Laptop   | Bilder | Prozesse | Laufzeit in s | Speedup | Efficiency |
-| -------- | -----: | -------: | ------------: | ------: | ---------: |
-|  1 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|  1 |     10 |        2 |           xxx |     xxx |        xxx |
-|  1 |     10 |        4 |           xxx |     xxx |        xxx |
-|  1 |     10 |        8 |           xxx |     xxx |        xxx |
-|  1 |     50 |        1 |           xxx |    1.00 |       1.00 |
-|  1 |     50 |        2 |           xxx |     xxx |        xxx |
-|  1 |     50 |        4 |           xxx |     xxx |        xxx |
-|  1 |     50 |        8 |           xxx |     xxx |        xxx |
-|  2 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|  2 |     10 |        2 |           xxx |     xxx |        xxx |
-|  2 |     10 |        4 |           xxx |     xxx |        xxx |
-|  2 |     10 |        8 |           xxx |     xxx |        xxx |
-|  3 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|  3 |     10 |        2 |           xxx |     xxx |        xxx |
-|  3 |     10 |        4 |           xxx |     xxx |        xxx |
-|  3 |     10 |        8 |           xxx |     xxx |        xxx |
+
+Pro Kombination aus Bildanzahl und Prozessanzahl 10 Runs, Laufzeit als Median
+
+| Laptop | Bilder | Prozesse | Laufzeit in s | Speedup | Efficiency |
+| -----: | -----: | -------: | ------------: | ------: | ---------: |
+|      1 |     10 |        1 |           xxx |    1.00 |       1.00 |
+|      1 |     10 |        2 |           xxx |     xxx |        xxx |
+|      1 |     10 |        4 |           xxx |     xxx |        xxx |
+|      1 |     10 |        8 |           xxx |     xxx |        xxx |
+|      1 |     50 |        1 |           xxx |    1.00 |       1.00 |
+|      1 |     50 |        2 |           xxx |     xxx |        xxx |
+|      1 |     50 |        4 |           xxx |     xxx |        xxx |
+|      1 |     50 |        8 |           xxx |     xxx |        xxx |
+|      1 |    100 |        1 |           xxx |    1.00 |       1.00 |
+|      1 |    100 |        2 |           xxx |     xxx |        xxx |
+|      1 |    100 |        4 |           xxx |     xxx |        xxx |
+|      1 |    100 |        8 |           xxx |     xxx |        xxx |
+|      1 |    200 |        1 |           xxx |    1.00 |       1.00 |
+|      1 |    200 |        2 |           xxx |     xxx |        xxx |
+|      1 |    200 |        4 |           xxx |     xxx |        xxx |
+|      1 |    200 |        8 |           xxx |     xxx |        xxx |
+|      2 |     10 |        1 |           xxx |    1.00 |       1.00 |
+|      2 |     10 |        2 |           xxx |     xxx |        xxx |
+|      2 |     10 |        4 |           xxx |     xxx |        xxx |
+|      2 |     10 |        8 |           xxx |     xxx |        xxx |
+|      2 |     50 |        1 |           xxx |    1.00 |       1.00 |
+|      2 |     50 |        2 |           xxx |     xxx |        xxx |
+|      2 |     50 |        4 |           xxx |     xxx |        xxx |
+|      2 |     50 |        8 |           xxx |     xxx |        xxx |
+|      2 |    100 |        1 |           xxx |    1.00 |       1.00 |
+|      2 |    100 |        2 |           xxx |     xxx |        xxx |
+|      2 |    100 |        4 |           xxx |     xxx |        xxx |
+|      2 |    100 |        8 |           xxx |     xxx |        xxx |
+|      2 |    200 |        1 |           xxx |    1.00 |       1.00 |
+|      2 |    200 |        2 |           xxx |     xxx |        xxx |
+|      2 |    200 |        4 |           xxx |     xxx |        xxx |
+|      2 |    200 |        8 |           xxx |     xxx |        xxx |
+|      3 |     10 |        1 |           xxx |    1.00 |       1.00 |
+|      3 |     10 |        2 |           xxx |     xxx |        xxx |
+|      3 |     10 |        4 |           xxx |     xxx |        xxx |
+|      3 |     10 |        8 |           xxx |     xxx |        xxx |
+|      3 |     50 |        1 |           xxx |    1.00 |       1.00 |
+|      3 |     50 |        2 |           xxx |     xxx |        xxx |
+|      3 |     50 |        4 |           xxx |     xxx |        xxx |
+|      3 |     50 |        8 |           xxx |     xxx |        xxx |
+|      3 |    100 |        1 |           xxx |    1.00 |       1.00 |
+|      3 |    100 |        2 |           xxx |     xxx |        xxx |
+|      3 |    100 |        4 |           xxx |     xxx |        xxx |
+|      3 |    100 |        8 |           xxx |     xxx |        xxx |
+|      3 |    200 |        1 |           xxx |    1.00 |       1.00 |
+|      3 |    200 |        2 |           xxx |     xxx |        xxx |
+|      3 |    200 |        4 |           xxx |     xxx |        xxx |
+|      3 |    200 |        8 |           xxx |     xxx |        xxx |
 
 ---
 
