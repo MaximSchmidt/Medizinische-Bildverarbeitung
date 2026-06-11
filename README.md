@@ -26,8 +26,8 @@ Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 | Laptop   | Prozessor                                |                  Kerne / Threads |    RAM | Betriebssystem |
 | -------- | ---------------------------------------- | -------------------------------: | -----: | -------------- |
 |  1 | Intel(R) Core(TM) Ultra 7 258V, 2200 MHz | 8 Kerne / 8 logische Prozessoren | 32 GB | Windows        |
-|  2 | xxx                                      |                              xxx | xxx GB | xxx            |
-|  3 | xxx                                      |                              xxx | xxx GB | xxx            |
+|  2 | AMD Ryzen 7 PRO 7840U   | 8 Kerne / 16 logische Prozessoren | 32 GB | xxx            |
+|  3 | xxx                                      |                              xxx | xxx GB | Linux Mint 22.2       |
 
 
 
