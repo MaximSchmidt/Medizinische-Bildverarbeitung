@@ -2,7 +2,7 @@
 
 Dieses Repository enthält den Code und die Ergebnisse für das Projekt **„Entwicklung und Benchmarking einer parallelen Anwendung“** im Kurs Parallel Systems an der HTW Berlin, Sommersemester 2026.
 
-Ziel des Projekts ist der Vergleich einer sequenziellen und einer parallelen Bildverarbeitungspipeline mit Python Multiprocessing. Als Anwendungsfall werden Röntgen, also medizinische Bilder verarbeitet.
+Ziel des Projekts ist der Vergleich von Multiprocessing Ansätzen für die medizinische Bildverarbeitung. Als Anwendungsfall werden Röntgenbilder verarbeitet.
 
 Der Fokus liegt nicht auf medizinischer Diagnose, sondern auf der technischen Untersuchung der Parallelisierung.
 
@@ -12,12 +12,16 @@ Der Fokus liegt nicht auf medizinischer Diagnose, sondern auf der technischen Un
 Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 
 1. Bild laden
-2. Bildgröße zu 512×512 
+2. Bildgröße ändern
 3. Bild in Graustufen umwandeln
 4. Helligkeit und Kontrast anpassen
-5. Rauschen reduzieren, Blur-Filter
+5. Rauschen reduzieren, Gaussian Filter
 6. Histogramm der Grauwerte berechnen
 7. Ergebnis speichern
+
+
+Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing,
+aber ohne internes Multithreading, cv2.setNumThreads(1)
 
 
 ## Testumgebung
@@ -33,15 +37,25 @@ Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 
 ## Varianten
 
-Die Bildverarbeitung bleibt beiden Varianten identisch. Der Unterschied liegt  in der Ausführung:
+Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der Verteilung der Bilder auf Prozesse.
 
-| Variante | Name                       | Beschreibung                                                          |
-| -------: | -------------------------- | --------------------------------------------------------------------- |
-|        1 | Sequenziell     | Ein Prozess verarbeitet alle Bilder nacheinander         |
-|        2 | Multiprocessing | Mehrere Prozesse verarbeiten mehrere Bilder parallel |
+| Variante | Name | Technologie | Beschreibung |
+| -------: | -------------------------- | -------------------------- | --------------------------------------------------------------------- |
+| 1 | Sequenziell | Python + OpenCV | Ein Prozess verarbeitet alle Bilder nacheinander |
+| 2 | Multiprocessing static | Python multiprocessing.Process + OpenCV | Die Bilder werden vorher fest auf mehrere Prozesse aufgeteilt |
+| 3 | Multiprocessing dynamic | Python multiprocessing.Pool Queue + OpenCV | Prozesse holen sich dynamisch neue Bilder, wenn sie fertig verarbeitet sind |
 
 
 # Benchmark
+
+## Testdaten
+
+Es werden zwei Testarten betrachtet:
+
+1. Steigende Bildanzahl bei gleicher Auflösung
+
+2. Steigende Bildanzahl bei unterschiedlicher Auflösung
+
 
 ## Ergebnisse - Platzhalter
 
@@ -64,7 +78,6 @@ Die Bildverarbeitung bleibt beiden Varianten identisch. Der Unterschied liegt  i
   </tr>
 </table>
 
----
 
 ### Histogramm
 
@@ -77,103 +90,133 @@ Die Bildverarbeitung bleibt beiden Varianten identisch. Der Unterschied liegt  i
   </tr>
 </table>
 
----
-
 
 ### Diagramme
 
 <table width="100%">
   <tr>
-    <td width="100%"><img src="plots/runtime_by_laptop.png" width="100%"></td>
+    <td width="100%"><img src="plots/runtime_by_image_count_all_laptops.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Laufzeitvergleich bei 200 Bildern</td>
-  </tr>
-
-  <tr>
-    <td width="100%"><img src="plots/speedup_by_laptop.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center">Speedup-Vergleich bei 200 Bildern</td>
+    <td align="center">Laufzeit bei steigender Bildanzahl auf allen drei Laptops.</td>
   </tr>
 
   <tr>
-    <td width="100%"><img src="plots/efficiency_by_processes.png" width="100%"></td>
+    <td width="100%"><img src="plots/speedup_by_processes_all_laptops.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Efficiency bei unterschiedlicher Prozessanzahl bei Laptop 1</td>
+    <td align="center">Speedup bei 2, 4 und 8 Prozessen auf allen drei Laptops.</td>
   </tr>
 
   <tr>
-    <td width="100%"><img src="plots/runtime_by_image_count.png" width="100%"></td>
+    <td width="100%"><img src="plots/efficiency_by_processes_all_laptops.png" width="100%"></td>
   </tr>
   <tr>
-    <td align="center">Laufzeit bei steigender Bildanzahl bei Laptop 1</td>
+    <td align="center">Efficiency bei 2, 4 und 8 Prozessen auf allen drei Laptops.</td>
+  </tr>
+
+  <tr>
+    <td width="100%"><img src="plots/static_vs_dynamic_all_laptops.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center">Vergleich von Baselinem, Static, Dynamic Multiprocessing auf allen drei Laptops.</td>
   </tr>
 </table>
 
 
-
-
----
-
 ## Messung
 
 
-Pro Kombination aus Bildanzahl und Prozessanzahl 10 Runs, Laufzeit als Median
+Pro Kombination aus Bildanzahl, Variante und Prozessanzahl werden 10 Runs durchgeführt. Als Laufzeit wird der Median verwendet.
 
-| Laptop | Bilder | Prozesse | Laufzeit in s | Speedup | Efficiency |
-| -----: | -----: | -------: | ------------: | ------: | ---------: |
-|      1 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|      1 |     10 |        2 |           xxx |     xxx |        xxx |
-|      1 |     10 |        4 |           xxx |     xxx |        xxx |
-|      1 |     10 |        8 |           xxx |     xxx |        xxx |
-|      1 |     50 |        1 |           xxx |    1.00 |       1.00 |
-|      1 |     50 |        2 |           xxx |     xxx |        xxx |
-|      1 |     50 |        4 |           xxx |     xxx |        xxx |
-|      1 |     50 |        8 |           xxx |     xxx |        xxx |
-|      1 |    100 |        1 |           xxx |    1.00 |       1.00 |
-|      1 |    100 |        2 |           xxx |     xxx |        xxx |
-|      1 |    100 |        4 |           xxx |     xxx |        xxx |
-|      1 |    100 |        8 |           xxx |     xxx |        xxx |
-|      1 |    200 |        1 |           xxx |    1.00 |       1.00 |
-|      1 |    200 |        2 |           xxx |     xxx |        xxx |
-|      1 |    200 |        4 |           xxx |     xxx |        xxx |
-|      1 |    200 |        8 |           xxx |     xxx |        xxx |
-|      2 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|      2 |     10 |        2 |           xxx |     xxx |        xxx |
-|      2 |     10 |        4 |           xxx |     xxx |        xxx |
-|      2 |     10 |        8 |           xxx |     xxx |        xxx |
-|      2 |     50 |        1 |           xxx |    1.00 |       1.00 |
-|      2 |     50 |        2 |           xxx |     xxx |        xxx |
-|      2 |     50 |        4 |           xxx |     xxx |        xxx |
-|      2 |     50 |        8 |           xxx |     xxx |        xxx |
-|      2 |    100 |        1 |           xxx |    1.00 |       1.00 |
-|      2 |    100 |        2 |           xxx |     xxx |        xxx |
-|      2 |    100 |        4 |           xxx |     xxx |        xxx |
-|      2 |    100 |        8 |           xxx |     xxx |        xxx |
-|      2 |    200 |        1 |           xxx |    1.00 |       1.00 |
-|      2 |    200 |        2 |           xxx |     xxx |        xxx |
-|      2 |    200 |        4 |           xxx |     xxx |        xxx |
-|      2 |    200 |        8 |           xxx |     xxx |        xxx |
-|      3 |     10 |        1 |           xxx |    1.00 |       1.00 |
-|      3 |     10 |        2 |           xxx |     xxx |        xxx |
-|      3 |     10 |        4 |           xxx |     xxx |        xxx |
-|      3 |     10 |        8 |           xxx |     xxx |        xxx |
-|      3 |     50 |        1 |           xxx |    1.00 |       1.00 |
-|      3 |     50 |        2 |           xxx |     xxx |        xxx |
-|      3 |     50 |        4 |           xxx |     xxx |        xxx |
-|      3 |     50 |        8 |           xxx |     xxx |        xxx |
-|      3 |    100 |        1 |           xxx |    1.00 |       1.00 |
-|      3 |    100 |        2 |           xxx |     xxx |        xxx |
-|      3 |    100 |        4 |           xxx |     xxx |        xxx |
-|      3 |    100 |        8 |           xxx |     xxx |        xxx |
-|      3 |    200 |        1 |           xxx |    1.00 |       1.00 |
-|      3 |    200 |        2 |           xxx |     xxx |        xxx |
-|      3 |    200 |        4 |           xxx |     xxx |        xxx |
-|      3 |    200 |        8 |           xxx |     xxx |        xxx |
+| Laptop | Variante | Bilder | Prozesse | Laufzeit in s | Speedup | Efficiency | Throughput |
+| -----: | -------- | -----: | -------: | ------------: | ------: | ---------: | ---------: |
+| 1 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 1 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 1 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 1 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 1 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 1 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 2 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 2 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 2 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 2 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 2 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 3 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 3 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 3 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
+| 3 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
+| 3 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
 
----
+
 
 ## Interpretation
 
