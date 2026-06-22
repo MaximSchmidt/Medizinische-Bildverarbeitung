@@ -57,9 +57,8 @@ Es werden zwei Testarten betrachtet:
 
 2. Steigende Bildanzahl bei unterschiedlicher Auflösung
 
-Datensätze:
+Datensatz:
 
-- NIH Chest X-Ray (100k+ Bilder, sehr groß, 2 Klassen, einheitliche Auflösung) Link: https://www.kaggle.com/datasets/nih-chest-xrays/data
 - Kaggle Pneumonia Dataset (~5.000 Bilder, 14 Klassen, variable Auflösung) Link: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 
 
