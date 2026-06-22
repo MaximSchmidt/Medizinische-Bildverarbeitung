@@ -41,10 +41,12 @@ aber ohne internes Multithreading, cv2.setNumThreads(1)
 Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der Verteilung der Bilder auf Prozesse.
 
 | Variante | Name | Technologie | Beschreibung |
-| -------: | -------------------------- | -------------------------- | --------------------------------------------------------------------- |
+| -------: | ---- | ----------- | ------------ |
 | 1 | Sequenziell | Python + OpenCV | Ein Prozess verarbeitet alle Bilder nacheinander |
-| 2 | Multiprocessing static | Python multiprocessing.Process + OpenCV | Die Bilder werden vorher fest auf mehrere Prozesse aufgeteilt |
-| 3 | Multiprocessing dynamic | Python multiprocessing.Pool Queue + OpenCV | Prozesse holen sich dynamisch neue Bilder, wenn sie fertig verarbeitet sind |
+| 2 | Multiprocessing static | Python `multiprocessing.Process` + OpenCV | Die Bilder werden auf mehrere Prozesse aufgeteilt |
+| 3 | Multiprocessing dynamic | Python `multiprocessing.Pool` / `Queue` + OpenCV | Prozesse holen sich dynamisch neue Bilder, sobald sie fertig bearbeitet sind |
+| 4 | Multithreading | Python `ThreadPoolExecutor` / `threading` + OpenCV | Mehrere Threads verarbeiten Bilder parallel|
+
 
 
 # Benchmark
