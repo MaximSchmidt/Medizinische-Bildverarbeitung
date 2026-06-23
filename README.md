@@ -18,7 +18,6 @@ Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 5. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
 6. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
 7. Histogramm der Grauwerte berechnen
-8. Ergebnis speichern
 
 
 Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing,
@@ -55,13 +54,11 @@ Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der
 
 Es werden zwei Testarten betrachtet:
 
-1. Steigende Bildanzahl bei gleicher Auflösung
+| Nr. | Testart | Datensatz |
+|---:|---|---|
+| 1 | Steigende Bildanzahl bei gleicher Auflösung | [NIH Chest X-rays `images_002`](https://www.kaggle.com/datasets/nih-chest-xrays/data?resource=download-directory&select=images_002) |
+| 2 | Steigende Bildanzahl bei unterschiedlicher Auflösung | [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia/data) |
 
-2. Steigende Bildanzahl bei unterschiedlicher Auflösung
-
-Datensatz:
-
-- Kaggle Pneumonia Dataset (~5.000 Bilder, 14 Klassen, variable Auflösung) Link: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 
 
 ## Ergebnisse - Platzhalter
