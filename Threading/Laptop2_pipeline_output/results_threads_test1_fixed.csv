@@ -1,0 +1,21 @@
+test;scheduling;bilder;threads;laufzeit_s;speedup;efficiency;throughput
+Gleiche Aufloesung (1024x1024);static;100;1;1.0768;1.0;1.0;92.87
+Gleiche Aufloesung (1024x1024);static;100;2;0.5915;1.8206;0.9103;169.07
+Gleiche Aufloesung (1024x1024);static;100;4;0.3692;2.9163;0.7291;270.83
+Gleiche Aufloesung (1024x1024);static;100;8;0.2236;4.815;0.6019;447.16
+Gleiche Aufloesung (1024x1024);static;100;16;0.1983;5.4291;0.3393;504.19
+Gleiche Aufloesung (1024x1024);static;500;1;5.2925;1.0;1.0;94.47
+Gleiche Aufloesung (1024x1024);static;500;2;2.9593;1.7885;0.8942;168.96
+Gleiche Aufloesung (1024x1024);static;500;4;1.7867;2.9621;0.7405;279.84
+Gleiche Aufloesung (1024x1024);static;500;8;1.1683;4.5302;0.5663;427.98
+Gleiche Aufloesung (1024x1024);static;500;16;0.9872;5.3612;0.3351;506.49
+Gleiche Aufloesung (1024x1024);static;1000;1;10.5386;1.0;1.0;94.89
+Gleiche Aufloesung (1024x1024);static;1000;2;5.8728;1.7945;0.8972;170.28
+Gleiche Aufloesung (1024x1024);static;1000;4;3.5305;2.985;0.7462;283.24
+Gleiche Aufloesung (1024x1024);static;1000;8;2.3763;4.4349;0.5544;420.83
+Gleiche Aufloesung (1024x1024);static;1000;16;2.0106;5.2414;0.3276;497.35
+Gleiche Aufloesung (1024x1024);static;5000;1;52.7231;1.0;1.0;94.84
+Gleiche Aufloesung (1024x1024);static;5000;2;30.2198;1.7447;0.8723;165.45
+Gleiche Aufloesung (1024x1024);static;5000;4;17.8449;2.9545;0.7386;280.19
+Gleiche Aufloesung (1024x1024);static;5000;8;11.704;4.5047;0.5631;427.2
+Gleiche Aufloesung (1024x1024);static;5000;16;9.8008;5.3795;0.3362;510.16
