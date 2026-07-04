@@ -1,0 +1,33 @@
+Laptop,Variante,Datensatz,Bilder,Prozesse,Laufzeit in s,Speedup,Efficiency,Throughput
+3,Dynamic,NIH,100,1,0.751,1.0,1.0,133.12
+3,Dynamic,NIH,100,2,0.426,1.763,0.881,234.79
+3,Dynamic,NIH,100,4,0.281,2.673,0.668,355.52
+3,Dynamic,NIH,100,8,0.221,3.398,0.425,451.94
+3,Dynamic,NIH,500,1,3.372,1.0,1.0,148.28
+3,Dynamic,NIH,500,2,1.748,1.929,0.965,285.98
+3,Dynamic,NIH,500,4,0.938,3.595,0.899,533.09
+3,Dynamic,NIH,500,8,0.561,6.011,0.751,891.88
+3,Dynamic,NIH,1000,1,6.587,1.0,1.0,151.8
+3,Dynamic,NIH,1000,2,3.377,1.951,0.976,296.13
+3,Dynamic,NIH,1000,4,1.764,3.734,0.933,566.79
+3,Dynamic,NIH,1000,8,0.98,6.721,0.84,1020.34
+3,Dynamic,NIH,5000,1,32.304,1.0,1.0,154.78
+3,Dynamic,NIH,5000,2,16.387,1.971,0.986,305.12
+3,Dynamic,NIH,5000,4,8.248,3.917,0.979,606.23
+3,Dynamic,NIH,5000,8,4.383,7.37,0.921,1140.88
+3,Dynamic,Kaggle Pneumonia,100,1,1.023,1.0,1.0,97.79
+3,Dynamic,Kaggle Pneumonia,100,2,0.562,1.82,0.91,177.96
+3,Dynamic,Kaggle Pneumonia,100,4,0.341,3.0,0.75,292.95
+3,Dynamic,Kaggle Pneumonia,100,8,0.256,3.996,0.499,390.96
+3,Dynamic,Kaggle Pneumonia,500,1,4.829,1.0,1.0,103.53
+3,Dynamic,Kaggle Pneumonia,500,2,2.486,1.942,0.971,201.09
+3,Dynamic,Kaggle Pneumonia,500,4,1.32,3.658,0.914,378.83
+3,Dynamic,Kaggle Pneumonia,500,8,0.777,6.215,0.777,643.47
+3,Dynamic,Kaggle Pneumonia,1000,1,9.709,1.0,1.0,102.99
+3,Dynamic,Kaggle Pneumonia,1000,2,4.957,1.959,0.98,201.72
+3,Dynamic,Kaggle Pneumonia,1000,4,2.588,3.752,0.938,386.43
+3,Dynamic,Kaggle Pneumonia,1000,8,1.469,6.609,0.826,680.65
+3,Dynamic,Kaggle Pneumonia,5000,1,28.172,1.0,1.0,177.48
+3,Dynamic,Kaggle Pneumonia,5000,2,14.374,1.96,0.98,347.86
+3,Dynamic,Kaggle Pneumonia,5000,4,7.347,3.834,0.959,680.54
+3,Dynamic,Kaggle Pneumonia,5000,8,4.153,6.784,0.848,1203.94
