@@ -48,6 +48,20 @@ CONFIG = {
     "random_seed":    123,
 }
 
+# Maxims config
+# SCRIPT_DIR = Path(__file__).resolve().parent
+# PROJECT_DIR = SCRIPT_DIR.parent
+# DATA_DIR = PROJECT_DIR / "data"
+
+# CONFIG = {
+#     "same_size_dir": DATA_DIR / "nih_chest_xray",
+#     "random_size_dir": DATA_DIR / "kaggle_pneumonia",
+#     "output_dir": SCRIPT_DIR / "pipeline_output" / "Laptop1_pipeline_output",
+#     "sample_sizes": [100, 500, 1000, 5000],
+#     "thread_counts": [1, 2, 4, 8],
+#     "random_seed": 123,
+# }
+
 # WORKER-FUNKTIONEN ############################################################
 
 """

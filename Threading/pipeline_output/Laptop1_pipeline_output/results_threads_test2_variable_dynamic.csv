@@ -1,0 +1,17 @@
+test;scheduling;bilder;threads;laufzeit_s;speedup;efficiency;throughput
+Variable Aufloesung;dynamic;100;1;1.3193;1.0;1.0;75.8
+Variable Aufloesung;dynamic;100;2;0.6196;2.1293;1.0646;161.39
+Variable Aufloesung;dynamic;100;4;0.3564;3.7017;0.9254;280.59
+Variable Aufloesung;dynamic;100;8;0.2281;5.7826;0.7228;438.31
+Variable Aufloesung;dynamic;500;1;6.2969;1.0;1.0;79.4
+Variable Aufloesung;dynamic;500;2;3.4239;1.8391;0.9196;146.03
+Variable Aufloesung;dynamic;500;4;2.2089;2.8506;0.7127;226.35
+Variable Aufloesung;dynamic;500;8;1.5279;4.1212;0.5151;327.24
+Variable Aufloesung;dynamic;1000;1;12.8061;1.0;1.0;78.09
+Variable Aufloesung;dynamic;1000;2;6.9583;1.8404;0.9202;143.71
+Variable Aufloesung;dynamic;1000;4;4.4732;2.8629;0.7157;223.55
+Variable Aufloesung;dynamic;1000;8;3.1367;4.0827;0.5103;318.81
+Variable Aufloesung;dynamic;5000;1;62.401;1.0;1.0;80.13
+Variable Aufloesung;dynamic;5000;2;36.3905;1.7148;0.8574;137.4
+Variable Aufloesung;dynamic;5000;4;23.4724;2.6585;0.6646;213.02
+Variable Aufloesung;dynamic;5000;8;14.8006;4.2161;0.527;337.83
