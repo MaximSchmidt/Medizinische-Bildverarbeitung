@@ -11,11 +11,9 @@ Der Fokus liegt nicht auf medizinischer Diagnose, sondern auf der technischen Un
 
 Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 
-1. Bild laden
-2. Bildgröße ändern (Resize auf 512 x 512 px)
-3. Bild in Graustufen umwandeln (falls zuvor als RGB gespeichert, um Ressourcen zu sparen)
+2. Bild laden und in Graustufen umwandeln
 4. Median-Filter (entfernt Salt-and-Pepper Rauschen, damit CLAHE dieses Rauschen nicht mitverstärkt; Kernel 5 x 5)
-5. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
+5. Kontrastverstärkung mit CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
 6. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
 7. Histogramm der Grauwerte berechnen
 
@@ -37,14 +35,15 @@ aber ohne internes Multithreading, cv2.setNumThreads(1)
 
 ## Varianten
 
-Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der Verteilung der Bilder auf Prozesse.
+Die Bildverarbeitungspipeline mit OpenCV  bleibt in allen Varianten identisch. Nur die Verteilung der Bilder auf Prozesse oder Threads unterscheidet sich.
 
-| Variante | Name | Technologie | Beschreibung |
-| -------: | ---- | ----------- | ------------ |
-| 1 | Sequenziell | Python + OpenCV | Ein Prozess verarbeitet alle Bilder nacheinander |
-| 2 | Multiprocessing static | Python `multiprocessing.Process` + OpenCV | Die Bilder werden auf mehrere Prozesse aufgeteilt |
-| 3 | Multiprocessing dynamic | Python `multiprocessing.Pool` / `Queue` + OpenCV | Prozesse holen sich dynamisch neue Bilder, sobald sie fertig bearbeitet sind |
-| 4 | Multithreading | Python `ThreadPoolExecutor` / `threading` + OpenCV | Mehrere Threads verarbeiten Bilder parallel|
+| Variante | Technologie | Beschreibung |
+|---|---|---|
+| Baseline | Python | Alle Bilder werden sequenziell verarbeitet |
+| Multiprocessing Static | `multiprocessing.Process` | Die Bilder werden vor dem Start in Chunks aufgeteilt |
+| Multiprocessing Dynamic | `multiprocessing.Pool.imap_unordered` |  Prozesse übernehmen dynamisch das jeweils nächste Bild |
+| Threading Static | `ThreadPoolExecutor` | Jeder Thread erhält einen  Chunk von Bildern |
+| Threading Dynamic | `ThreadPoolExecutor` | Jedes Bild wird einzeln als Aufgabe an den nächsten freien Thread vergeben |
 
 
 
@@ -97,34 +96,7 @@ Es werden zwei Testarten betrachtet:
 
 ### Diagramme
 
-<table width="100%">
-  <tr>
-    <td width="100%"><img src="plots/runtime_by_image_count_all_laptops.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center">Laufzeit bei steigender Bildanzahl auf allen drei Laptops.</td>
-  </tr>
 
-  <tr>
-    <td width="100%"><img src="plots/speedup_by_processes_all_laptops.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center">Speedup bei 2, 4 und 8 Prozessen auf allen drei Laptops.</td>
-  </tr>
-
-  <tr>
-    <td width="100%"><img src="plots/efficiency_by_processes_all_laptops.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center">Efficiency bei 2, 4 und 8 Prozessen auf allen drei Laptops.</td>
-  </tr>
-
-  <tr>
-    <td width="100%"><img src="plots/static_vs_dynamic_all_laptops.png" width="100%"></td>
-  </tr>
-  <tr>
-    <td align="center">Vergleich von Baselinem, Static, Dynamic Multiprocessing auf allen drei Laptops.</td>
-  </tr>
 </table>
 
 
@@ -134,91 +106,6 @@ Es werden zwei Testarten betrachtet:
 Pro Kombination aus Bildanzahl, Variante und Prozessanzahl werden 10 Runs durchgeführt. Als Laufzeit wird der Median verwendet.
 
 | Laptop | Variante | Bilder | Prozesse | Laufzeit in s | Speedup | Efficiency | Throughput |
-| -----: | -------- | -----: | -------: | ------------: | ------: | ---------: | ---------: |
-| 1 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 1 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 1 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 1 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 1 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 1 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 2 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 2 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 2 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 2 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 2 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Sequenziell | 100 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 3 | Static | 100 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Static | 100 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Static | 100 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 100 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 100 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 100 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Sequenziell | 500 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 3 | Static | 500 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Static | 500 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Static | 500 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 500 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 500 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 500 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Sequenziell | 1000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 3 | Static | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Static | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Static | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 1000 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 1000 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 1000 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Sequenziell | 5000 | 1 | xxx | 1.00 | 1.00 | xxx |
-| 3 | Static | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Static | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Static | 5000 | 8 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 5000 | 2 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 5000 | 4 | xxx | xxx | xxx | xxx |
-| 3 | Dynamic | 5000 | 8 | xxx | xxx | xxx | xxx |
 
 
 
@@ -248,3 +135,5 @@ Pro Kombination aus Bildanzahl, Variante und Prozessanzahl werden 10 Runs durchg
 This project is licensed under the MIT License.
 
 ## Acknowledgments
+
+

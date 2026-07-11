@@ -1,0 +1,137 @@
+Laptop,Variante,Datensatz,Bilder,Worker,Laufzeit in s,Speedup,Efficiency,Throughput
+1,Baseline,NIH,100,1,0.937,1.0,1.0,106.68
+1,Baseline,NIH,500,1,4.723,1.0,1.0,105.85
+1,Baseline,NIH,1000,1,9.641,1.0,1.0,103.72
+1,Baseline,NIH,5000,1,52.194,1.0,1.0,95.8
+1,Baseline,Kaggle Pneumonia,100,1,1.709,1.0,1.0,58.51
+1,Baseline,Kaggle Pneumonia,500,1,8.787,1.0,1.0,56.9
+1,Baseline,Kaggle Pneumonia,1000,1,17.683,1.0,1.0,56.55
+1,Baseline,Kaggle Pneumonia,5000,1,45.174,1.0,1.0,110.68
+1,Multiprocessing Static,NIH,100,1,0.923,1.0,1.0,108.35
+1,Multiprocessing Static,NIH,100,2,1.147,0.804,0.402,87.15
+1,Multiprocessing Static,NIH,100,4,0.873,1.057,0.264,114.49
+1,Multiprocessing Static,NIH,100,8,1.398,0.66,0.083,71.55
+1,Multiprocessing Static,NIH,500,1,4.708,1.0,1.0,106.2
+1,Multiprocessing Static,NIH,500,2,3.191,1.475,0.738,156.69
+1,Multiprocessing Static,NIH,500,4,2.934,1.604,0.401,170.39
+1,Multiprocessing Static,NIH,500,8,3.672,1.282,0.16,136.15
+1,Multiprocessing Static,NIH,1000,1,9.527,1.0,1.0,104.96
+1,Multiprocessing Static,NIH,1000,2,5.866,1.624,0.812,170.48
+1,Multiprocessing Static,NIH,1000,4,4.62,2.062,0.516,216.45
+1,Multiprocessing Static,NIH,1000,8,4.907,1.941,0.243,203.78
+1,Multiprocessing Static,NIH,5000,1,49.03,1.0,1.0,101.98
+1,Multiprocessing Static,NIH,5000,2,31.634,1.55,0.775,158.06
+1,Multiprocessing Static,NIH,5000,4,19.8,2.476,0.619,252.53
+1,Multiprocessing Static,NIH,5000,8,14.933,3.283,0.41,334.82
+1,Multiprocessing Static,Kaggle Pneumonia,100,1,1.877,1.0,1.0,53.27
+1,Multiprocessing Static,Kaggle Pneumonia,100,2,1.725,1.088,0.544,57.98
+1,Multiprocessing Static,Kaggle Pneumonia,100,4,1.357,1.383,0.346,73.69
+1,Multiprocessing Static,Kaggle Pneumonia,100,8,1.692,1.11,0.139,59.11
+1,Multiprocessing Static,Kaggle Pneumonia,500,1,9.652,1.0,1.0,51.8
+1,Multiprocessing Static,Kaggle Pneumonia,500,2,5.946,1.623,0.812,84.09
+1,Multiprocessing Static,Kaggle Pneumonia,500,4,4.606,2.096,0.524,108.55
+1,Multiprocessing Static,Kaggle Pneumonia,500,8,5.218,1.85,0.231,95.83
+1,Multiprocessing Static,Kaggle Pneumonia,1000,1,18.975,1.0,1.0,52.7
+1,Multiprocessing Static,Kaggle Pneumonia,1000,2,11.47,1.654,0.827,87.18
+1,Multiprocessing Static,Kaggle Pneumonia,1000,4,7.711,2.461,0.615,129.69
+1,Multiprocessing Static,Kaggle Pneumonia,1000,8,7.826,2.425,0.303,127.77
+1,Multiprocessing Static,Kaggle Pneumonia,5000,1,51.026,1.0,1.0,97.99
+1,Multiprocessing Static,Kaggle Pneumonia,5000,2,36.746,1.389,0.694,136.07
+1,Multiprocessing Static,Kaggle Pneumonia,5000,4,28.089,1.817,0.454,178.01
+1,Multiprocessing Static,Kaggle Pneumonia,5000,8,17.838,2.86,0.358,280.3
+1,Multiprocessing Dynamic,NIH,100,1,0.984,1.0,1.0,101.64
+1,Multiprocessing Dynamic,NIH,100,2,0.961,1.024,0.512,104.1
+1,Multiprocessing Dynamic,NIH,100,4,0.932,1.055,0.264,107.25
+1,Multiprocessing Dynamic,NIH,100,8,1.237,0.795,0.099,80.84
+1,Multiprocessing Dynamic,NIH,500,1,5.507,1.0,1.0,90.79
+1,Multiprocessing Dynamic,NIH,500,2,3.214,1.713,0.857,155.55
+1,Multiprocessing Dynamic,NIH,500,4,2.291,2.404,0.601,218.22
+1,Multiprocessing Dynamic,NIH,500,8,2.06,2.673,0.334,242.66
+1,Multiprocessing Dynamic,NIH,1000,1,10.546,1.0,1.0,94.82
+1,Multiprocessing Dynamic,NIH,1000,2,6.226,1.694,0.847,160.62
+1,Multiprocessing Dynamic,NIH,1000,4,4.058,2.599,0.65,246.44
+1,Multiprocessing Dynamic,NIH,1000,8,3.251,3.244,0.406,307.61
+1,Multiprocessing Dynamic,NIH,5000,1,51.324,1.0,1.0,97.42
+1,Multiprocessing Dynamic,NIH,5000,2,30.586,1.678,0.839,163.47
+1,Multiprocessing Dynamic,NIH,5000,4,18.545,2.767,0.692,269.61
+1,Multiprocessing Dynamic,NIH,5000,8,12.774,4.018,0.502,391.43
+1,Multiprocessing Dynamic,Kaggle Pneumonia,100,1,1.837,1.0,1.0,54.43
+1,Multiprocessing Dynamic,Kaggle Pneumonia,100,2,1.349,1.362,0.681,74.14
+1,Multiprocessing Dynamic,Kaggle Pneumonia,100,4,1.137,1.615,0.404,87.93
+1,Multiprocessing Dynamic,Kaggle Pneumonia,100,8,1.259,1.46,0.182,79.46
+1,Multiprocessing Dynamic,Kaggle Pneumonia,500,1,9.266,1.0,1.0,53.96
+1,Multiprocessing Dynamic,Kaggle Pneumonia,500,2,5.367,1.726,0.863,93.16
+1,Multiprocessing Dynamic,Kaggle Pneumonia,500,4,3.545,2.614,0.653,141.03
+1,Multiprocessing Dynamic,Kaggle Pneumonia,500,8,2.922,3.171,0.396,171.1
+1,Multiprocessing Dynamic,Kaggle Pneumonia,1000,1,18.725,1.0,1.0,53.4
+1,Multiprocessing Dynamic,Kaggle Pneumonia,1000,2,10.83,1.729,0.864,92.34
+1,Multiprocessing Dynamic,Kaggle Pneumonia,1000,4,6.775,2.764,0.691,147.61
+1,Multiprocessing Dynamic,Kaggle Pneumonia,1000,8,5.03,3.723,0.465,198.82
+1,Multiprocessing Dynamic,Kaggle Pneumonia,5000,1,48.445,1.0,1.0,103.21
+1,Multiprocessing Dynamic,Kaggle Pneumonia,5000,2,27.864,1.739,0.869,179.44
+1,Multiprocessing Dynamic,Kaggle Pneumonia,5000,4,17.153,2.824,0.706,291.49
+1,Multiprocessing Dynamic,Kaggle Pneumonia,5000,8,13.775,3.517,0.44,362.99
+1,Threading Static,NIH,100,1,0.943,1.0,1.0,106.07
+1,Threading Static,NIH,100,2,0.483,1.952,0.976,207.0
+1,Threading Static,NIH,100,4,0.288,3.275,0.819,347.39
+1,Threading Static,NIH,100,8,0.191,4.941,0.618,524.12
+1,Threading Static,NIH,500,1,4.667,1.0,1.0,107.14
+1,Threading Static,NIH,500,2,2.56,1.823,0.911,195.28
+1,Threading Static,NIH,500,4,2.144,2.177,0.544,233.19
+1,Threading Static,NIH,500,8,1.142,4.085,0.511,437.69
+1,Threading Static,NIH,1000,1,9.291,1.0,1.0,107.63
+1,Threading Static,NIH,1000,2,5.05,1.84,0.92,198.03
+1,Threading Static,NIH,1000,4,4.014,2.315,0.579,249.13
+1,Threading Static,NIH,1000,8,2.341,3.969,0.496,427.23
+1,Threading Static,NIH,5000,1,52.313,1.0,1.0,95.58
+1,Threading Static,NIH,5000,2,30.098,1.738,0.869,166.12
+1,Threading Static,NIH,5000,4,19.123,2.736,0.684,261.46
+1,Threading Static,NIH,5000,8,13.829,3.783,0.473,361.55
+1,Threading Dynamic,NIH,100,1,1.296,1.0,1.0,77.18
+1,Threading Dynamic,NIH,100,2,0.692,1.874,0.937,144.6
+1,Threading Dynamic,NIH,100,4,0.376,3.443,0.861,265.74
+1,Threading Dynamic,NIH,100,8,0.243,5.322,0.665,410.74
+1,Threading Dynamic,NIH,500,1,6.223,1.0,1.0,80.35
+1,Threading Dynamic,NIH,500,2,3.271,1.903,0.951,152.87
+1,Threading Dynamic,NIH,500,4,1.84,3.382,0.846,271.75
+1,Threading Dynamic,NIH,500,8,1.234,5.041,0.63,405.05
+1,Threading Dynamic,NIH,1000,1,11.997,1.0,1.0,83.35
+1,Threading Dynamic,NIH,1000,2,6.572,1.826,0.913,152.17
+1,Threading Dynamic,NIH,1000,4,3.685,3.256,0.814,271.38
+1,Threading Dynamic,NIH,1000,8,2.749,4.364,0.545,363.71
+1,Threading Dynamic,NIH,5000,1,58.739,1.0,1.0,85.12
+1,Threading Dynamic,NIH,5000,2,28.783,2.041,1.02,173.71
+1,Threading Dynamic,NIH,5000,4,17.104,3.434,0.859,292.32
+1,Threading Dynamic,NIH,5000,8,11.182,5.253,0.657,447.14
+1,Threading Static,Kaggle Pneumonia,100,1,1.772,1.0,1.0,56.43
+1,Threading Static,Kaggle Pneumonia,100,2,0.957,1.851,0.926,104.46
+1,Threading Static,Kaggle Pneumonia,100,4,0.573,3.094,0.774,174.59
+1,Threading Static,Kaggle Pneumonia,100,8,0.378,4.693,0.587,264.81
+1,Threading Static,Kaggle Pneumonia,500,1,8.751,1.0,1.0,57.14
+1,Threading Static,Kaggle Pneumonia,500,2,5.015,1.745,0.872,99.7
+1,Threading Static,Kaggle Pneumonia,500,4,3.01,2.908,0.727,166.13
+1,Threading Static,Kaggle Pneumonia,500,8,2.008,4.358,0.545,248.97
+1,Threading Static,Kaggle Pneumonia,1000,1,17.436,1.0,1.0,57.35
+1,Threading Static,Kaggle Pneumonia,1000,2,9.918,1.758,0.879,100.83
+1,Threading Static,Kaggle Pneumonia,1000,4,6.746,2.585,0.646,148.23
+1,Threading Static,Kaggle Pneumonia,1000,8,4.37,3.99,0.499,228.86
+1,Threading Static,Kaggle Pneumonia,5000,1,51.411,1.0,1.0,97.25
+1,Threading Static,Kaggle Pneumonia,5000,2,39.388,1.305,0.653,126.94
+1,Threading Static,Kaggle Pneumonia,5000,4,28.236,1.821,0.455,177.08
+1,Threading Static,Kaggle Pneumonia,5000,8,16.421,3.131,0.391,304.48
+1,Threading Dynamic,Kaggle Pneumonia,100,1,1.963,1.0,1.0,50.95
+1,Threading Dynamic,Kaggle Pneumonia,100,2,1.034,1.898,0.949,96.68
+1,Threading Dynamic,Kaggle Pneumonia,100,4,0.593,3.31,0.828,168.65
+1,Threading Dynamic,Kaggle Pneumonia,100,8,0.413,4.755,0.594,242.26
+1,Threading Dynamic,Kaggle Pneumonia,500,1,9.989,1.0,1.0,50.06
+1,Threading Dynamic,Kaggle Pneumonia,500,2,5.278,1.893,0.946,94.74
+1,Threading Dynamic,Kaggle Pneumonia,500,4,3.033,3.293,0.823,164.84
+1,Threading Dynamic,Kaggle Pneumonia,500,8,2.009,4.973,0.622,248.91
+1,Threading Dynamic,Kaggle Pneumonia,1000,1,20.468,1.0,1.0,48.86
+1,Threading Dynamic,Kaggle Pneumonia,1000,2,10.591,1.933,0.966,94.42
+1,Threading Dynamic,Kaggle Pneumonia,1000,4,6.332,3.232,0.808,157.92
+1,Threading Dynamic,Kaggle Pneumonia,1000,8,4.1,4.992,0.624,243.91
+1,Threading Dynamic,Kaggle Pneumonia,5000,1,52.438,1.0,1.0,95.35
+1,Threading Dynamic,Kaggle Pneumonia,5000,2,29.484,1.778,0.889,169.58
+1,Threading Dynamic,Kaggle Pneumonia,5000,4,17.401,3.013,0.753,287.33
+1,Threading Dynamic,Kaggle Pneumonia,5000,8,11.335,4.626,0.578,441.1
