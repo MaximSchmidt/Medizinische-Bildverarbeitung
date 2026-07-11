@@ -11,17 +11,14 @@ Der Fokus liegt nicht auf medizinischer Diagnose, sondern auf der technischen Un
 
 Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 
-1. Bild laden
-2. Bildgröße ändern (Resize auf 512 x 512 px)
-3. Bild in Graustufen umwandeln (falls zuvor als RGB gespeichert, um Ressourcen zu sparen)
-4. Median-Filter (entfernt Salt-and-Pepper Rauschen, damit CLAHE dieses Rauschen nicht mitverstärkt; Kernel 5 x 5)
-5. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
-6. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
-7. Histogramm der Grauwerte berechnen
+1. Bild laden + Bild in Graustufen umwandeln (falls zuvor als RGB gespeichert, um Ressourcen zu sparen)
+2. Median-Filter (entfernt Salt-and-Pepper Rauschen, damit CLAHE dieses Rauschen nicht mitverstärkt; Kernel 5 x 5)
+3. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
+4. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
+5. Histogramm der Grauwerte berechnen
 
 
-Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing,
-aber ohne internes Multithreading, cv2.setNumThreads(1)
+Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing, aber ohne internes Multithreading, cv2.setNumThreads(1)
 
 
 ## Testumgebung
