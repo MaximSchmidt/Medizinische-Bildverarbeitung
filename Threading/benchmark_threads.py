@@ -4,9 +4,9 @@ Das Skript liest Bilder aus folgenden zwei lokalen Ordnern ein:
   - random_size/ : 5000+ JPEG-Bilder mit unterschiedlichen Auflösungen (Aus dem Datensatz https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia/data aus train)
 
 Ausgabe (im Ordner pipeline_output/):
-    results_threads_test1_fixed.csv             – Test 1: gleiche Auflösung (same_size/)
-    results_threads_test2_variable_static.csv   – Test 2a: variable Auflösung, statisch
-    results_threads_test2_variable_dynamic.csv  – Test 2b: variable Auflösung, dynamisch
+    results_threads_test1_fixed.csv – Test 1: gleiche Auflösung (same_size/)
+    results_threads_test2_variable_static.csv – Test 2a: variable Auflösung, statisch
+    results_threads_test2_variable_dynamic.csv – Test 2b: variable Auflösung, dynamisch
 
 Pipeline (pro Bild)
   1. Bild laden
@@ -19,8 +19,8 @@ Pipeline (pro Bild)
 
 Tests
   Test 1: Steigende Bildanzahl, gleiche Auflösung
-  Test 2a: Steigende Bildanzahl, variable Auflösung, statisches Scheduling  (executor.map)
-  Test 2b: Steigende Bildanzahl, variable Auflösung, dynamisches Scheduling (executor.submit)
+  Test 2a: Steigende Bildanzahl, variable Auflösung, statisches Scheduling  (fester Block pro Thread)
+  Test 2b: Steigende Bildanzahl, variable Auflösung, dynamisches Scheduling (executor.submit pro Bild)
 """
 
 import random
@@ -39,8 +39,8 @@ from dataset_info import collect_image_paths, print_dataset_info
 # KONFIGURATION ###############################################################
 
 CONFIG = {
-    "same_size_dir":   Path("same_size"),
-    "random_size_dir": Path("random_size"),
+    "same_size_dir":   Path("../data/same_size"),
+    "random_size_dir": Path("../data/random_size"),
     "output_dir":      Path("pipeline_output"),
     "sample_sizes":    [100, 500, 1000, 5000],
     "thread_counts":   [1, 2, 4, 8, 16],
@@ -50,13 +50,13 @@ CONFIG = {
 
 # BILDVERARBEITUNG ############################################################
 
-def process_image(image_path: Path, resize_to_1024: bool) -> dict:
+def process_image(image_path: Path, resize: bool) -> dict:
     """
     Verarbeitet ein einzelnes Bild (siehe Pipeline oben) und gibt ein
     Dictionary mit Metadaten zurück (oder eine Fehlermeldung).
 
-    resize_to_1024=True -> Test 1: Bild wird zuerst auf 1024x1024 skaliert
-    resize_to_1024=False -> Test 2: Originalauflösung bleibt erhalten
+    resize=True -> Test 1: Bild wird zuerst auf 1024x1024 skaliert
+    resize=False -> Test 2: Originalauflösung bleibt erhalten
     """
     cv2.setNumThreads(1)  # OpenCV soll nicht selbst zusätzliche Threads starten
 
@@ -71,7 +71,7 @@ def process_image(image_path: Path, resize_to_1024: bool) -> dict:
         original_height, original_width = image.shape[:2]
 
         # Schritt 2: Resize (nur Test 1)
-        if resize_to_1024:
+        if resize:
             image = cv2.resize(image, (1024, 1024), interpolation=cv2.INTER_LINEAR)
 
         # Schritt 3: Graustufen
@@ -110,32 +110,71 @@ def process_image(image_path: Path, resize_to_1024: bool) -> dict:
 
 # BENCHMARK ####################################################################
 
-def measure_runtime(image_paths: list, num_threads: int, resize_to_1024: bool, scheduling: str) -> float:
+def split_into_chunks(items: list, num_chunks: int) -> list:
+    """
+    Teilt 'items' in 'num_chunks' Blöcke auf, die möglichst gleich groß sind.
+
+    Beispiel: 100 Bilder, 8 Threads -> 100 // 8 = 12 Rest 4
+              Die ersten 4 Blöcke bekommen 13 Bilder, die restlichen 4 Blöcke bekommen 12 Bilder.
+              (4 x 13) + (4 x 12) = 100
+    """
+    base_size = len(items) // num_chunks
+    num_larger_chunks = len(items) % num_chunks  # so viele Blöcke bekommen 1 Bild mehr
+
+    chunks = []
+    start = 0
+    for i in range(num_chunks):
+        size = base_size + 1 if i < num_larger_chunks else base_size
+        chunks.append(items[start : start + size])
+        start += size
+
+    return chunks
+
+
+def process_chunk(chunk: list, resize: bool):
+    """Ein Thread bekommt diesen ganzen Block von Bildern und arbeitet ihn nacheinander ab."""
+    for path in chunk:
+        process_image(path, resize)
+
+
+def measure_runtime(image_paths: list, num_threads: int, resize: bool, scheduling: str) -> float:
     """
     Verarbeitet alle 'image_paths' mit 'num_threads' Threads und gibt die
     dafür benötigte Zeit in Sekunden zurück.
 
-    scheduling="static"  -> executor.map(): Aufgaben werden gleichmäßig auf alle Threads verteilt
-    scheduling="dynamic" -> executor.submit(): jeder Thread holt sich neue Arbeit, sobald er fertig ist
+    scheduling="static" -> jeder Thread bekommt vorher einen festen Block von Bildern
+                             (z.B. bei 100 Bildern und 8 Threads: 4 Threads je 13 Bilder, 4 Threads je 12 Bilder)
+    scheduling="dynamic" -> jedes Bild ist eine einzelne Aufgabe, ein Thread holt sich die
+                             nächste Aufgabe aus der Warteschlange, sobald er frei wird
     """
     start_time = time.perf_counter()
 
     if num_threads == 1:
         # Bei nur 1 Thread lohnt sich kein Pool -> einfache Schleife, kein Thread-Overhead
         for path in image_paths:
-            process_image(path, resize_to_1024)
+            process_image(path, resize)
+        return time.perf_counter() - start_time
 
-    elif scheduling == "static":
-        with ThreadPoolExecutor(max_workers=num_threads) as pool:
-            # map() gibt jedem Thread nacheinander ein Bild, in fester Reihenfolge
-            list(pool.map(lambda path: process_image(path, resize_to_1024), image_paths))
+    with ThreadPoolExecutor(max_workers=num_threads) as pool:
+        if scheduling == "static":
+            # Jeder Thread bekommt genau einen Block -> eine Aufgabe pro Thread
+            chunks = split_into_chunks(image_paths, num_threads)
+            futures = []
+            for chunk in chunks:
+                future = pool.submit(process_chunk, chunk, resize)
+                futures.append(future)
+        else:
+            # Jedes Bild ist eine eigene Aufgabe -> freie Threads holen sich das nächste Bild
+            futures = [pool.submit(process_image, path, resize) for path in image_paths]
+            """
+            futures = []
+            for path in image_paths:
+                future = pool.submit(process_image, path, resize)
+                futures.append(future)
+            """
 
-    else:  # scheduling == "dynamic"
-        with ThreadPoolExecutor(max_workers=num_threads) as pool:
-            # submit() reicht alle Bilder sofort ein, jeder freie Thread nimmt sich das nächste
-            futures = [pool.submit(process_image, path, resize_to_1024) for path in image_paths]
-            for future in futures:
-                future.result()  # warten, bis das Bild fertig verarbeitet ist
+        for future in futures:
+            future.result()  # Future-Objekt: warten, bis alle Aufgaben fertig sind
 
     return time.perf_counter() - start_time
 
@@ -145,11 +184,17 @@ def compute_metrics(num_images: int, num_threads: int, elapsed_time: float,
     """
     Berechnet die Parallelisierungs-Metriken für einen Benchmark-Lauf.
 
-    Speedup S_p = T_1 / T_p      -> wie viel schneller als 1 Thread?
-    Efficiency E_p = S_p / p     -> wie gut wird jeder Thread ausgelastet? (1.0 = ideal)
-    Throughput R = N / T_p       -> wie viele Bilder pro Sekunde?
+    Speedup S_p = T_1 / T_p -> wie viel schneller als 1 Thread?
+    Efficiency E_p = S_p / p -> wie gut wird jeder Thread ausgelastet? (1.0 = ideal)
+    Throughput R = N / T_p -> wie viele Bilder pro Sekunde?
     """
     speedup = baseline_time / elapsed_time if elapsed_time > 0 else 0.0
+    """
+    if elapsed_time > 0:
+        speedup = baseline_time / elapsed_time
+    else:
+        speedup = 0.0
+    """
     efficiency = speedup / num_threads if num_threads > 0 else 0.0
     throughput = num_images / elapsed_time if elapsed_time > 0 else 0.0
 
@@ -165,8 +210,8 @@ def compute_metrics(num_images: int, num_threads: int, elapsed_time: float,
     }
 
 
-def run_benchmark(image_paths: list, resize_to_1024: bool, test_label: str,
-                   sample_sizes: list, thread_counts: list, scheduling: str) -> pd.DataFrame:
+def run_benchmark(image_paths: list, resize: bool, test_label: str,
+                  sample_sizes: list, thread_counts: list, scheduling: str) -> pd.DataFrame:
     """
     Führt den Benchmark für alle Stichprobengrößen und Thread-Anzahlen durch
     und gibt eine Ergebnistabelle (DataFrame) zurück.
@@ -188,10 +233,10 @@ def run_benchmark(image_paths: list, resize_to_1024: bool, test_label: str,
         for num_threads in thread_counts:
             print(f"     {num_threads:2d} Thread(s) [{scheduling:7s}] ... ", end="", flush=True)
 
-            elapsed = measure_runtime(sample, num_threads, resize_to_1024, scheduling)
+            elapsed = measure_runtime(sample, num_threads, resize, scheduling)
             print(f"{elapsed:.3f} s")
 
-            if baseline_time is None:
+            if baseline_time is None:  # Baselinetime an Anfang None (Merken für 1 Thread)
                 baseline_time = elapsed
 
             result_rows.append(
@@ -277,7 +322,7 @@ def main():
     print("\n\n TEST 1: Gleiche Auflösung (same_size/ → Resize 1024×1024) ")
     results_test1 = run_benchmark(
         image_paths=same_size_paths,
-        resize_to_1024=True,
+        resize=True,
         test_label="Gleiche Aufloesung (1024x1024)",
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
@@ -287,7 +332,7 @@ def main():
     print("\n\n TEST 2a: Variable Auflösung (random_size/) | Statisches Scheduling ")
     results_test2_static = run_benchmark(
         image_paths=random_size_paths,
-        resize_to_1024=False,
+        resize=False,
         test_label="Variable Aufloesung",
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
@@ -297,7 +342,7 @@ def main():
     print("\n\n TEST 2b: Variable Auflösung (random_size/) | Dynamisches Scheduling ")
     results_test2_dynamic = run_benchmark(
         image_paths=random_size_paths,
-        resize_to_1024=False,
+        resize=False,
         test_label="Variable Aufloesung",
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
