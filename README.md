@@ -28,7 +28,7 @@ Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python
 | -------- | ---------------------------------------- | -------------------------------: | -----: | -------------- |
 |  1 | Intel(R) Core(TM) Ultra 7 258V, 2200 MHz | 8 Kerne / 8 logische Prozessoren | 32 GB | Windows        |
 |  2 | AMD Ryzen 7 PRO 7840U   | 8 Kerne / 16 logische Prozessoren | 32 GB | Linux Mint 22.2             |
-|  3 | xxx                                      |                              xxx | xxx GB | XXX      |
+|  3 | Intel(R) Core(TM) i7-13700KF, 3400 MHz | 16 Kerne / 24 logische Prozessoren | 32 GB | Windows      |
 
 
 
@@ -41,7 +41,8 @@ Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der
 | 1 | Sequenziell | Python + OpenCV | Ein Prozess verarbeitet alle Bilder nacheinander |
 | 2 | Multiprocessing static | Python `multiprocessing.Process` + OpenCV | Die Bilder werden auf mehrere Prozesse aufgeteilt |
 | 3 | Multiprocessing dynamic | Python `multiprocessing.Pool` / `Queue` + OpenCV | Prozesse holen sich dynamisch neue Bilder, sobald sie fertig bearbeitet sind |
-| 4 | Multithreading | Python `ThreadPoolExecutor` / `threading` + OpenCV | Mehrere Threads verarbeiten Bilder parallel|
+| 4 | Multithreading static | Python `ThreadPoolExecutor` mit Chunks  / `threading` + OpenCV | Bilder werden auf Threads mit Chunks aufgeteilt |
+| 4 | Multithreading dynamic | Python `ThreadPoolExecutor` / `threading` + OpenCV | Threads holen sich dynamisch Bilder sobald sie fertig sind |
 
 
 
