@@ -42,9 +42,10 @@ CONFIG = {
     "same_size_dir":   Path("../data/same_size"),
     "random_size_dir": Path("../data/random_size"),
     "output_dir":      Path("pipeline_output"),
-    "sample_sizes":    [100, 500, 1000, 5000],
+    "sample_sizes":    [100, 500, 1000],
     "thread_counts":   [1, 2, 4, 8, 16],
     "random_seed":     123,
+    "num_runs":        10,
 }
 
 
@@ -69,10 +70,6 @@ def process_image(image_path: Path, resize: bool) -> dict:
             return {"file": image_path.name, "success": False, "error": "imread returned None"}
 
         original_height, original_width = image.shape[:2]
-
-        # Schritt 2: Resize (nur Test 1)
-        if resize:
-            image = cv2.resize(image, (1024, 1024), interpolation=cv2.INTER_LINEAR)
 
         # Schritt 3: Graustufen
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if image.ndim == 3 else image
@@ -211,7 +208,7 @@ def compute_metrics(num_images: int, num_threads: int, elapsed_time: float,
 
 
 def run_benchmark(image_paths: list, resize: bool, test_label: str,
-                  sample_sizes: list, thread_counts: list, scheduling: str) -> pd.DataFrame:
+                  sample_sizes: list, thread_counts: list, scheduling: str, num_runs: int) -> pd.DataFrame:
     """
     Führt den Benchmark für alle Stichprobengrößen und Thread-Anzahlen durch
     und gibt eine Ergebnistabelle (DataFrame) zurück.
@@ -227,23 +224,24 @@ def run_benchmark(image_paths: list, resize: bool, test_label: str,
         sample = random.sample(image_paths, actual_size)
 
         print(f"\n  -> {actual_size} Bilder")
+        elapsed_times = []
 
         baseline_time = None  # Laufzeit mit 1 Thread, als Vergleichswert für diese Stichprobengröße
 
         for num_threads in thread_counts:
             print(f"     {num_threads:2d} Thread(s) [{scheduling:7s}] ... ", end="", flush=True)
 
-            elapsed = measure_runtime(sample, num_threads, resize, scheduling)
-            print(f"{elapsed:.3f} s")
-
-            if baseline_time is None:  # Baselinetime an Anfang None (Merken für 1 Thread)
+            for run in range(num_runs):
+                elapsed_times.append(measure_runtime(sample, num_threads, resize, scheduling))
+            elapsed = np.median(elapsed_times)
+            print(f"Median (10 runs): {elapsed:.3f} s")
+            if baseline_time is None:
                 baseline_time = elapsed
-
-            result_rows.append(
-                compute_metrics(actual_size, num_threads, elapsed, baseline_time, test_label, scheduling)
+            result_rows.append(compute_metrics(actual_size, num_threads, elapsed, baseline_time, test_label, scheduling)
             )
-
     return pd.DataFrame(result_rows)
+
+
 
 
 def print_results_table(results: pd.DataFrame):
@@ -269,6 +267,7 @@ def print_results_table(results: pd.DataFrame):
             f"{row['efficiency']:>11.3f}    "
             f"{row['throughput']:>14.2f}    "
         )
+
 
 
 # HAUPTPROGRAMM ################################################################
@@ -315,11 +314,12 @@ def main():
 
     print("\n\n ## Datensatz-Statistiken ##")
     print("  (wird einmalig vor den Tests berechnet)")
-    print_dataset_info(same_size_paths, label="same_size   (PNG, 1024×1024)")
-    print_dataset_info(random_size_paths, label="random_size (JPEG, variable Auflösung)")
+    #print_dataset_info(same_size_paths, label="same_size   (PNG, 1024×1024)")
+    #print_dataset_info(random_size_paths, label="random_size (JPEG, variable Auflösung)")
 
     # Tests ---------------------------------------------------------------------
     print("\n\n TEST 1: Gleiche Auflösung (same_size/ → Resize 1024×1024) ")
+    
     results_test1 = run_benchmark(
         image_paths=same_size_paths,
         resize=True,
@@ -327,9 +327,14 @@ def main():
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
         scheduling="static",
+        num_runs=CONFIG["num_runs"],
     )
+    
+
+
 
     print("\n\n TEST 2a: Variable Auflösung (random_size/) | Statisches Scheduling ")
+    
     results_test2_static = run_benchmark(
         image_paths=random_size_paths,
         resize=False,
@@ -337,9 +342,12 @@ def main():
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
         scheduling="static",
+        num_runs=CONFIG["num_runs"],
     )
 
+
     print("\n\n TEST 2b: Variable Auflösung (random_size/) | Dynamisches Scheduling ")
+    
     results_test2_dynamic = run_benchmark(
         image_paths=random_size_paths,
         resize=False,
@@ -347,9 +355,13 @@ def main():
         sample_sizes=CONFIG["sample_sizes"],
         thread_counts=CONFIG["thread_counts"],
         scheduling="dynamic",
+        num_runs=CONFIG["num_runs"],
     )
+    
+
 
     # Ergebnisse ausgeben ---------------------------------------------------------
+    
     print("\n\n GESAMTERGEBNISSE ")
 
     all_results = pd.concat(
@@ -357,6 +369,7 @@ def main():
         ignore_index=True,
     )
     print_results_table(all_results)
+    
 
     # CSV-Dateien schreiben --------------------------------------------------------
     csv_output_files = {
