@@ -224,11 +224,11 @@ def run_benchmark(image_paths: list, resize: bool, test_label: str,
         sample = random.sample(image_paths, actual_size)
 
         print(f"\n  -> {actual_size} Bilder")
-        elapsed_times = []
 
         baseline_time = None  # Laufzeit mit 1 Thread, als Vergleichswert für diese Stichprobengröße
 
         for num_threads in thread_counts:
+            elapsed_times = []
             print(f"     {num_threads:2d} Thread(s) [{scheduling:7s}] ... ", end="", flush=True)
 
             for run in range(num_runs):
