@@ -221,3 +221,6 @@ __marimo__/
 /data
 /output
 /OpenCV_vs_NumPy
+
+# Backup Files
+/Multiprocessing/Backup_vor_Feedback
