@@ -156,81 +156,78 @@ def benchmark():
 
     return pd.DataFrame(rows)
 
-df = benchmark()
-df
+if __name__ == "__main__":
+    nih_paths    = get_image_paths(NIH_DIR)
+    kaggle_paths = get_image_paths(KAGGLE_DIR)
 
+    print(f"NIH Bilder gefunden:              {len(nih_paths)}")
+    print(f"Kaggle Pneumonia Bilder gefunden: {len(kaggle_paths)}")
 
-# #### 4. Speedup und Efficiency
-# Efficiency = Speedup / Anzahl Prozesse
+    df = benchmark()
 
-# In[6]:
+    # Speedup und Efficiency
+    baseline = (
+        df[df["Prozesse"] == 1]
+        .set_index(["Datensatz", "Bilder"])["Laufzeit in s"]
+    )
+    df["Speedup"]    = df.apply(lambda r: round(baseline.get((r["Datensatz"], r["Bilder"]), float("nan")) / r["Laufzeit in s"], 3), axis=1)
+    df["Efficiency"] = df.apply(lambda r: round(r["Speedup"] / r["Prozesse"], 3), axis=1)
 
-
-baseline = (
-    df[df["Prozesse"] == 1]
-    .set_index(["Datensatz", "Bilder"])["Laufzeit in s"]
-)
-
-df["Speedup"]   = df.apply(lambda r: round(baseline.get((r["Datensatz"], r["Bilder"]), float("nan")) / r["Laufzeit in s"], 3), axis=1)
-df["Efficiency"] = df.apply(lambda r: round(r["Speedup"] / r["Prozesse"], 3), axis=1)
-
-df.to_csv(RESULTS_CSV, index=False)
-print(f"Gespeichert: {RESULTS_CSV}")
-df
-
+    df.to_csv(RESULTS_CSV, index=False)
+    print(f"Gespeichert: {RESULTS_CSV}")
 
 # #### 5. Plots
 
 # In[7]:
 
 
-Path("plots").mkdir(exist_ok=True)
+    Path("plots").mkdir(exist_ok=True)
 
-for dataset_name in ["NIH", "Kaggle Pneumonia"]:
-    sub_ds = df[df["Datensatz"] == dataset_name]
+    for dataset_name in ["NIH", "Kaggle Pneumonia"]:
+        sub_ds = df[df["Datensatz"] == dataset_name]
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    fig.suptitle(f"Static Multiprocessing — {dataset_name} — Laptop {LAPTOP_ID}")
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+        fig.suptitle(f"Static Multiprocessing — {dataset_name} — Laptop {LAPTOP_ID}")
 
-    ax = axes[0]
-    for n_proc in PROCESS_COUNTS:
-        sub = sub_ds[sub_ds["Prozesse"] == n_proc]
-        ax.errorbar(sub["Bilder"], sub["Laufzeit in s"],
-                    yerr=sub["Std"], marker="o", capsize=4, label=f"{n_proc} Prozesse")
-    ax.set_xlabel("Bildanzahl")
-    ax.set_ylabel("Laufzeit in s")
-    ax.set_title("Laufzeit")
-    ax.legend()
-    ax.grid(True)
+        ax = axes[0]
+        for n_proc in PROCESS_COUNTS:
+            sub = sub_ds[sub_ds["Prozesse"] == n_proc]
+            ax.errorbar(sub["Bilder"], sub["Laufzeit in s"],
+                        yerr=sub["Std"], marker="o", capsize=4, label=f"{n_proc} Prozesse")
+        ax.set_xlabel("Bildanzahl")
+        ax.set_ylabel("Laufzeit in s")
+        ax.set_title("Laufzeit")
+        ax.legend()
+        ax.grid(True)
 
-    ax = axes[1]
-    for n_img in IMAGE_COUNTS:
-        sub = sub_ds[sub_ds["Bilder"] == n_img]
-        if not sub.empty:
-            ax.errorbar(sub["Prozesse"], sub["Speedup"],
-                        yerr=sub["Std"], marker="o", capsize=4, label=f"{n_img} Bilder")
-    ax.plot(PROCESS_COUNTS, PROCESS_COUNTS, "k--", alpha=0.4, label="Ideal")
-    ax.set_xlabel("Prozesse")
-    ax.set_ylabel("Speedup")
-    ax.set_title("Speedup")
-    ax.legend()
-    ax.grid(True)
+        ax = axes[1]
+        for n_img in IMAGE_COUNTS:
+            sub = sub_ds[sub_ds["Bilder"] == n_img]
+            if not sub.empty:
+                ax.errorbar(sub["Prozesse"], sub["Speedup"],
+                          yerr=sub["Std"], marker="o", capsize=4, label=f"{n_img} Bilder")
+        ax.plot(PROCESS_COUNTS, PROCESS_COUNTS, "k--", alpha=0.4, label="Ideal")
+        ax.set_xlabel("Prozesse")
+        ax.set_ylabel("Speedup")
+        ax.set_title("Speedup")
+        ax.legend()
+        ax.grid(True)
 
-    ax = axes[2]
-    for n_img in IMAGE_COUNTS:
-        sub = sub_ds[sub_ds["Bilder"] == n_img]
-        if not sub.empty:
-            ax.errorbar(sub["Prozesse"], sub["Efficiency"],
-                        yerr=sub["Std"], marker="o", capsize=4, label=f"{n_img} Bilder")
-    ax.axhline(1.0, color="k", linestyle="--", alpha=0.4, label="Ideal")
-    ax.set_xlabel("Prozesse")
-    ax.set_ylabel("Efficiency")
-    ax.set_title("Efficiency")
-    ax.legend()
-    ax.grid(True)
+        ax = axes[2]
+        for n_img in IMAGE_COUNTS:
+            sub = sub_ds[sub_ds["Bilder"] == n_img]
+            if not sub.empty:
+                ax.errorbar(sub["Prozesse"], sub["Efficiency"],
+                            yerr=sub["Std"], marker="o", capsize=4, label=f"{n_img} Bilder")
+        ax.axhline(1.0, color="k", linestyle="--", alpha=0.4, label="Ideal")
+        ax.set_xlabel("Prozesse")
+        ax.set_ylabel("Efficiency")
+        ax.set_title("Efficiency")
+        ax.legend()
+        ax.grid(True)
 
-    plt.tight_layout()
-    fname = f"{RESULTS_DIR}/static_{dataset_name.lower().replace(' ', '_')}_laptop{LAPTOP_ID}.png"
-    plt.savefig(fname, dpi=150)
-   # plt.show()
+        plt.tight_layout()
+        fname = f"{RESULTS_DIR}/static_{dataset_name.lower().replace(' ', '_')}_laptop{LAPTOP_ID}.png"
+        plt.savefig(fname, dpi=150)
+    # plt.show()
 

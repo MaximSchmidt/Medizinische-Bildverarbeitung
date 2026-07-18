@@ -45,7 +45,6 @@ IMAGE_COUNTS   = [100, 500, 1000]
 PROCESS_COUNTS = [1, 2, 4, 8]
 CHUNKSIZE      = 1  # Chunksize 1 damit jeder Worker ein Bild verarbeitet
 
-
 Path(RESULTS_DIR).mkdir(parents=True, exist_ok=True)
 
 
@@ -69,14 +68,13 @@ def run_dynamic(image_paths, n_processes, chunksize=1):
     return total_time, results
 
 
-# 2b. "True" Dynamic (explizite Queue)
-# Echtes dynamisches Scheduling mit multiprocessing.Queue.
-# Jeder Worker holt sich aktiv die nächste Aufgabe (kein Pool-internes Management).
+# 2b. Dynamic True (explizite Queue, chunksize=1)
+# Jeder Worker holt sich aktiv die nächste Aufgabe — kein Pool-internes Management.
 
 def worker_dynamic_true(task_queue, result_queue):
     while True:
-        path = task_queue.get()  # holt nächste Aufgabe aus Queue
-        if path is None:         # Sentinel — keine Arbeit mehr
+        path = task_queue.get()
+        if path is None:
             break
         result = process_image(path)
         result_queue.put(result)
@@ -103,7 +101,75 @@ def run_dynamic_true(image_paths, n_processes):
     t_start = time.perf_counter()
     for p in processes: p.start()
 
-    # Ergebnisse WÄHREND die Prozesse laufen einlesen
+    # Ergebnisse WÄHREND die Prozesse laufen einlesen — verhindert Deadlock
+    results = []
+    for _ in range(len(image_paths)):
+        results.append(result_queue.get())
+
+    for p in processes: p.join()
+    total_time = time.perf_counter() - t_start
+
+    return total_time, results
+
+
+# 2c. Dynamic Adaptive (explizite Queue, variable Chunksize)
+# Worker passt Chunksize dynamisch an je nachdem wie viele Bilder noch in der Queue sind.
+# qsize() ist auf Linux laut Python-Doku nicht garantiert zuverlässig —
+# deshalb als experimentelle Variante implementiert.
+
+def worker_dynamic_adaptive(task_queue, result_queue, initial_chunk=4):
+    chunk_size = initial_chunk
+    while True:
+        paths = []
+        for _ in range(chunk_size):
+            try:
+                path = task_queue.get_nowait()
+                if path is None:
+                    for p in paths:
+                        result_queue.put(process_image(p))
+                    return
+                paths.append(path)
+            except:
+                break
+
+        if not paths:
+            break
+
+        remaining = task_queue.qsize()
+        if remaining > 500:
+            chunk_size = 8
+        elif remaining > 100:
+            chunk_size = 4
+        elif remaining > 10:
+            chunk_size = 2
+        else:
+            chunk_size = 1
+
+        for p in paths:
+            result_queue.put(process_image(p))
+
+
+def run_dynamic_adaptive(image_paths, n_processes):
+    task_queue   = multiprocessing.Queue()
+    result_queue = multiprocessing.Queue()
+
+    for path in image_paths:
+        task_queue.put(path)
+
+    for _ in range(n_processes):
+        task_queue.put(None)
+
+    processes = [
+        multiprocessing.Process(
+            target=worker_dynamic_adaptive,
+            args=(task_queue, result_queue)
+        )
+        for _ in range(n_processes)
+    ]
+
+    t_start = time.perf_counter()
+    for p in processes: p.start()
+
     results = []
     for _ in range(len(image_paths)):
         results.append(result_queue.get())
@@ -134,6 +200,7 @@ def benchmark():
                 continue
 
             for n_proc in PROCESS_COUNTS:
+
                 # Dynamic (Pool)
                 runtimes = []
                 for run in range(RUNS):
@@ -162,10 +229,10 @@ def benchmark():
                 })
                 print(f"  {n_img} Bilder | {n_proc} Prozesse | Dynamic | Median: {median_runtime:.3f}s ± {std_runtime:.4f}s")
 
-                # Dynamic True (explizite Queue)
+                # Dynamic Adaptive (explizite Queue, variable Chunksize)
                 runtimes = []
                 for run in range(RUNS):
-                    runtime, _ = run_dynamic_true(subset, n_proc)
+                    runtime, _ = run_dynamic_adaptive(subset, n_proc)
                     runtimes.append(runtime)
 
                 median_runtime    = statistics.median(runtimes)
@@ -175,7 +242,7 @@ def benchmark():
 
                 rows.append({
                     "Laptop":        LAPTOP_ID,
-                    "Variante":      "Dynamic True",
+                    "Variante":      "Dynamic Adaptive",
                     "Datensatz":     dataset_name,
                     "Bilder":        n_img,
                     "Prozesse":      n_proc,
@@ -188,7 +255,7 @@ def benchmark():
                     "Throughput":    round(median_throughput, 2),
                     "all_times":     str(runtimes),
                 })
-                print(f"  {n_img} Bilder | {n_proc} Prozesse | Dynamic True | Median: {median_runtime:.3f}s ± {std_runtime:.4f}s")
+                print(f"  {n_img} Bilder | {n_proc} Prozesse | Dynamic Adaptive | Median: {median_runtime:.3f}s ± {std_runtime:.4f}s")
 
     return pd.DataFrame(rows)
 
@@ -208,7 +275,7 @@ if __name__ == "__main__":
     df["Speedup"]    = None
     df["Efficiency"] = None
 
-    for variante in ["Dynamic", "Dynamic True"]:
+    for variante in ["Dynamic", "Dynamic True", "Dynamic Adaptive"]:
         mask = df["Variante"] == variante
         baseline = (
             df[mask & (df["Prozesse"] == 1)]
@@ -274,14 +341,15 @@ if __name__ == "__main__":
         fname = f"{RESULTS_DIR}/dynamic_{dataset_name.lower().replace(' ', '_')}_laptop{LAPTOP_ID}.png"
         plt.savefig(fname, dpi=150)
 
-    # Dynamic vs. Dynamic True
+    # Dynamic vs. Dynamic True vs. Dynamic Adaptive
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    fig.suptitle(f"Dynamic vs. Dynamic True — Laptop {LAPTOP_ID}")
+    fig.suptitle(f"Dynamic vs. Dynamic True vs. Dynamic Adaptive — Laptop {LAPTOP_ID}")
 
     for ax, dataset_name in zip(axes, ["NIH", "Kaggle Pneumonia"]):
         for variant, color, marker in [
-            ("Dynamic",      "darkorange", "o"),
-            ("Dynamic True", "purple",     "s"),
+            ("Dynamic",          "darkorange", "o"),
+            ("Dynamic True",     "purple",     "s"),
+            ("Dynamic Adaptive", "green",      "D"),
         ]:
             sub = df[
                 (df["Variante"]  == variant) &
@@ -299,12 +367,10 @@ if __name__ == "__main__":
         ax.grid(True)
 
     plt.tight_layout()
-    fname = f"{RESULTS_DIR}/dynamic_vs_true_laptop{LAPTOP_ID}.png"
+    fname = f"{RESULTS_DIR}/dynamic_vs_true_vs_adaptive_laptop{LAPTOP_ID}.png"
     plt.savefig(fname, dpi=150)
 
     # 6. Idle-Time Analyse
-    # Veranschaulichung der Variation der Laufzeit zwischen den einzelnen Bildern
-
     for ds_label, paths in [("NIH", nih_paths[:200]), ("Kaggle Pneumonia", kaggle_paths[:200])]:
         if len(paths) == 0:
             continue
