@@ -11,17 +11,14 @@ Der Fokus liegt nicht auf medizinischer Diagnose, sondern auf der technischen Un
 
 Ein einzelnes Bild wird dieser Pipeline verarbeitet:
 
-1. Bild laden
-2. Bildgröße ändern (Resize auf 512 x 512 px)
-3. Bild in Graustufen umwandeln (falls zuvor als RGB gespeichert, um Ressourcen zu sparen)
-4. Median-Filter (entfernt Salt-and-Pepper Rauschen, damit CLAHE dieses Rauschen nicht mitverstärkt; Kernel 5 x 5)
-5. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
-6. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
-7. Histogramm der Grauwerte berechnen
+1. Bild laden + Bild in Graustufen umwandeln (falls zuvor als RGB gespeichert, um Ressourcen zu sparen)
+2. Median-Filter (entfernt Salt-and-Pepper Rauschen, damit CLAHE dieses Rauschen nicht mitverstärkt; Kernel 5 x 5)
+3. CLAHE = Contrast Limited Adaptive Histogram Equalization (Kontrastverstärkung) (In Literatur z.B.: Altan, G., & Narlı, S. S. (2022). CLAHE based Enhancement to Transfer Learning in COVID-19 Detection. Gazi Journal of Engineering Sciences, 8(2), 406-416. https://izlik.org/JA75HG54CH)
+4. Gauß-Filter (Weichzeichunung von Artefakten, die durch kachelbasierte Histogrammausgleichung entstehen können; Kernel 3 x 3)
+5. Histogramm der Grauwerte berechnen
 
 
-Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing,
-aber ohne internes Multithreading, cv2.setNumThreads(1)
+Die Bildverarbeitung erfolgt mit OpenCV. Die Parallelisierung erfolgt mit Python Multiprocessing, aber ohne internes Multithreading, cv2.setNumThreads(1)
 
 
 ## Testumgebung
@@ -31,7 +28,7 @@ aber ohne internes Multithreading, cv2.setNumThreads(1)
 | -------- | ---------------------------------------- | -------------------------------: | -----: | -------------- |
 |  1 | Intel(R) Core(TM) Ultra 7 258V, 2200 MHz | 8 Kerne / 8 logische Prozessoren | 32 GB | Windows        |
 |  2 | AMD Ryzen 7 PRO 7840U   | 8 Kerne / 16 logische Prozessoren | 32 GB | Linux Mint 22.2             |
-|  3 | xxx                                      |                              xxx | xxx GB | XXX      |
+|  3 | Intel(R) Core(TM) i7-13700KF, 3400 MHz | 16 Kerne / 24 logische Prozessoren | 32 GB | Windows      |
 
 
 
@@ -44,7 +41,8 @@ Die Bildverarbeitung bleibt in allen Varianten identisch. Der Unterschied in der
 | 1 | Sequenziell | Python + OpenCV | Ein Prozess verarbeitet alle Bilder nacheinander |
 | 2 | Multiprocessing static | Python `multiprocessing.Process` + OpenCV | Die Bilder werden auf mehrere Prozesse aufgeteilt |
 | 3 | Multiprocessing dynamic | Python `multiprocessing.Pool` / `Queue` + OpenCV | Prozesse holen sich dynamisch neue Bilder, sobald sie fertig bearbeitet sind |
-| 4 | Multithreading | Python `ThreadPoolExecutor` / `threading` + OpenCV | Mehrere Threads verarbeiten Bilder parallel|
+| 4 | Multithreading static | Python `ThreadPoolExecutor` mit Chunks  / `threading` + OpenCV | Bilder werden auf Threads mit Chunks aufgeteilt |
+| 4 | Multithreading dynamic | Python `ThreadPoolExecutor` / `threading` + OpenCV | Threads holen sich dynamisch Bilder sobald sie fertig sind |
 
 
 
