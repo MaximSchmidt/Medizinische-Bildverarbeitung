@@ -41,6 +41,8 @@ from dataset_info import collect_image_paths, print_dataset_info
 CONFIG = {
     "same_size_dir":   Path("../data/same_size"),
     "random_size_dir": Path("../data/random_size"),
+    #"same_size_dir":   Path("../data/nih_chest_xray"),
+    #"random_size_dir": Path("../data/kaggle_pneumonia"),
     "output_dir":      Path("pipeline_output"),
     "sample_sizes":    [100, 500, 1000],
     "thread_counts":   [1, 2, 4, 8, 16],
